@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ImageGallery.css';
 
 const ImageGallery = ({ images, isAuthenticated }) => {
   const [draggedImageIndex, setDraggedImageIndex] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(''); // Step 1: Create state for search term
+  const [galleryImages, setGalleryImages] = useState(images);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Step 2: Filter images based on the search term
-  const filteredImages = images.filter((image) =>
+  // Filter images based on the search term
+  const filteredImages = galleryImages.filter((image) =>
     image.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  useEffect(() => {
+    // Update galleryImages when images prop changes (e.g., due to a search)
+    setGalleryImages(images);
+  }, [images]);
 
   const handleDragStart = (e, index) => {
     e.dataTransfer.setData('index', index);
@@ -27,27 +33,31 @@ const ImageGallery = ({ images, isAuthenticated }) => {
     }
 
     if (isAuthenticated) {
-      const updatedImages = [...filteredImages]; // Use filteredImages for drag-and-drop
+      const updatedImages = [...galleryImages];
       const draggedImage = updatedImages[draggedImageIndex];
       updatedImages.splice(draggedImageIndex, 1);
       updatedImages.splice(toIndex, 0, draggedImage);
 
       setDraggedImageIndex(null);
-      // Use setGalleryImages if needed to update the original images array
+      setGalleryImages(updatedImages);
     }
+  };
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
   };
 
   return (
     <div className="image-gallery">
-       <div className="search-bar">
-      <input
-        type="text"
-        placeholder="Search images..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-    </div>
-      {filteredImages.map((image, index) => ( // Step 4: Display filteredImages
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search images..."
+          value={searchTerm}
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+      </div>
+      {filteredImages.map((image, index) => (
         <div
           key={index}
           className={`image-card ${draggedImageIndex === index ? 'dragging' : ''}`}
