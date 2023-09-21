@@ -38,4 +38,14 @@
     padding: 10px;
   }
   
-  
+ /* ImageGallery.css */
+
+/* Position the search bar on the top right */
+.search-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 10px;
+  display: flex;
+  align-items: center;
+}
